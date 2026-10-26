@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="uz" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magazin | MARS IT School</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: { mars: { red: '#E31C25', dark: '#0F172A', blue: '#1E3A8A', orange: '#F97316', gold: '#FBBF24' } },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    keyframes: {
+                        popIn: { '0%': { transform: 'scale(0)' }, '80%': { transform: 'scale(1.2)' }, '100%': { transform: 'scale(1)' } },
+                        slotRoll: { '0%': { transform: 'translateY(0)' }, '100%': { transform: 'translateY(-300px)' } }
+                    },
+                    animation: {
+                        'pop-in': 'popIn 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards',
+                        'slot-roll': 'slotRoll 1s linear infinite'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        canvas {
+            touch-action: none;
+        }
+
+        .slot-reel {
+            height: 100px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .slot-strip {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .slot-item {
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+        }
+
+        .dark body {
+            background-color: #0B0F19;
+            color: #F1F5F9;
+        }
+
+        .dark .bg-white {
+            background-color: #111827;
+            border-color: #1F2937;
+        }
+
+        .dark .bg-\[\#F1F5F9\] {
+            background-color: #0B0F19;
+        }
+
+        .dark .text-slate-800,
+        .dark .text-slate-700 {
+            color: #E2E8F0;
+        }
+
+        .dark .text-slate-500 {
+            color: #94A3B8;
+        }
+
+        .dark .border-slate-100 {
+            border-color: #1F2937;
+        }
+
+        .dark .border-slate-200 {
+            border-color: #334155;
+        }
+
+        .dark .bg-slate-100 {
+            background-color: #1E293B;
+        }
+
+        .dark .bg-slate-50 {
+            background-color: #1E293B;
+        }
+    </style>
+</head>
+
+<body class="font-sans bg-[#F1F5F9] text-slate-800 overflow-x-hidden pb-16 md:pb-0 transition-colors duration-300">
+
+    <div id="toast" class="fixed top-5 left-1/2 -translate-x-1/2 z-[100] hidden max-w-sm w-[92%]"></div>
+
+    <!-- HEADER -->
+    <header class="sticky top-0 z-40 bg-white border-b border-slate-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <a href="#" class="text-2xl font-black tracking-tight"><span class="text-mars-blue">MARS</span><span
+                            class="text-mars-red">°</span></a>
+                </div>
+                <nav class="hidden md:flex items-center gap-8">
+                    <a href="#"
+                        class="flex items-center gap-1.5 text-sm font-medium text-slate-400 hover:text-slate-800 transition"><i
+                            class="fas fa-home text-xs"></i> Home</a>
+                    <a href="#"
+                        class="flex items-center gap-1.5 text-sm font-medium text-slate-400 hover:text-slate-800 transition"><i
+                            class="fas fa-graduation-cap text-xs"></i> Learning</a>
+                    <a href="#"
+                        class="flex items-center gap-1.5 text-sm font-semibold text-mars-red relative after:content-[''] after:absolute after:-bottom-1.5 after:left-0 after:right-0 after:h-[2px] after:bg-mars-red"><i
+                            class="fas fa-shopping-bag text-xs"></i> Shop</a>
+                </nav>
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <button onclick="openFeedback()"
+                        class="hidden sm:flex items-center justify-center w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors"
+                        title="Yordam / Fikr bildirish">
+                        <i class="fas fa-headset"></i>
+                    </button>
+                    <button
+                        class="hidden sm:flex items-center gap-1.5 px-4 py-2 border-2 border-mars-red text-mars-red hover:bg-red-50 text-xs font-bold rounded-full transition-colors">
+                        <i class="fas fa-plus"></i> Post yaratish
+                    </button>
+                    <button
+                        class="relative w-9 h-9 flex items-center justify-center rounded-full bg-amber-50 border border-amber-200 text-amber-500 hover:bg-amber-100 transition-colors">
+                        <i class="far fa-bell"></i>
+                        <span class="absolute top-2 right-2 w-1.5 h-1.5 bg-mars-red rounded-full"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- SUB-HEADER -->
+    <div class="bg-white border-b border-slate-200">
+        <div
+            class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <i class="fas fa-shopping-cart text-2xl text-slate-700"></i>
+                <h1 class="text-2xl font-bold text-mars-blue">Magazin</h1>
+            </div>
+            <div class="flex items-center gap-3 flex-1 md:max-w-md">
+                <div class="flex-1 flex items-center bg-[#0F172A] rounded-md px-3 h-9">
+                    <input type="text" id="searchInput" placeholder="search..."
+                        class="bg-transparent outline-none text-white text-xs w-full placeholder:text-slate-400">
+                </div>
+                <button class="bg-[#1E3A8A] text-white text-xs font-semibold px-5 py-2 rounded-md">clix</button>
+            </div>
+            <button class="flex items-center gap-1.5 text-[#EA580C] font-semibold text-sm"><i
+                    class="fas fa-history"></i><span>Haridlar tarixi</span></button>
+        </div>
+    </div>
+
+    <!-- MAIN GRID -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+        <div id="productsGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="border-t border-slate-200 bg-white mt-8">
+        <div class="max-w-7xl mx-auto px-6 py-5 flex justify-between text-xs text-slate-400">
+            <span>MARS IT School 2022</span>
+            <span class="font-black text-lg"><span class="text-mars-blue">MARS</span><span
+                    class="text-mars-red">°</span></span>
+            <span>@mars_it_school_uz</span>
+        </div>
+    </footer>
+
+    <!-- O'YINLAR TUGMALARI -->
+    <div class="fixed bottom-6 right-6 z-40 flex flex-col gap-2">
+        <button onclick="openSlot()"
+            class="w-12 h-12 bg-yellow-400 text-slate-900 rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition-transform"><i
+                class="fas fa-dice text-xl"></i></button>
+        <button onclick="openWheel()"
+            class="w-12 h-12 bg-purple-500 text-white rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition-transform"><i
+                class="fas fa-dharmachakra text-xl"></i></button>
+        <button onclick="openMemory()"
+            class="w-12 h-12 bg-indigo-500 text-white rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition-transform"><i
+                class="fas fa-brain text-xl"></i></button>
+    </div>
+
+    <!-- ================= MODALLAR ================= -->
+    <div id="feedbackOverlay"
+        class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 opacity-0 pointer-events-none transition-opacity duration-300 flex items-center justify-center p-4">
+        <div id="feedbackModal"
+            class="bg-white w-full max-w-lg rounded-2xl shadow-2xl transform scale-95 transition-transform duration-300 flex flex-col max-h-[90vh]">
+            <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+                <h2 class="text-lg font-bold text-slate-800">Nima demoqchisiz?</h2>
+                <button onclick="closeFeedback()"
+                    class="w-8 h-8 rounded-full bg-slate-50 hover:bg-slate-100 flex items-center justify-center text-slate-500 transition-colors"><i
+                        class="fas fa-times"></i></button>
+            </div>
+            <div class="p-5 overflow-y-auto space-y-5">
+                <div class="bg-slate-100 rounded-lg p-3 text-sm text-slate-600 font-medium">Bu sahifada: Space shop
+                </div>
+                <div>
+                    <div class="flex items-center gap-2 mb-3">
+                        <span
+                            class="w-6 h-6 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs font-bold">1</span>
+                        <span class="font-bold text-slate-800 text-sm">Nima bo'ldi?</span>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <button
+                            class="issue-type-btn active px-4 py-2 rounded-full border border-mars-red bg-green-50 text-mars-red font-medium text-sm transition-all"
+                            onclick="selectIssue(this)">Ishlamayapti</button>
+                        <button
+                            class="issue-type-btn px-4 py-2 rounded-full border border-slate-200 text-slate-600 font-medium text-sm hover:border-slate-300 transition-all"
+                            onclick="selectIssue(this)">Topshiriqda xato</button>
+                        <button
+                            class="issue-type-btn px-4 py-2 rounded-full border border-slate-200 text-slate-600 font-medium text-sm hover:border-slate-300 transition-all"
+                            onclick="selectIssue(this)">Taklif</button>
+                        <button
+                            class="issue-type-btn px-4 py-2 rounded-full border border-slate-200 text-slate-600 font-medium text-sm hover:border-slate-300 transition-all"
+                            onclick="selectIssue(this)">Boshqa</button>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2 mb-3">
+                        <span
+                            class="w-6 h-6 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs font-bold">2</span>
+                        <span class="font-bold text-slate-800 text-sm">Batafsil yozing</span>
+                    </div>
+                    <textarea id="feedbackText" rows="4" placeholder="Masalan: javobni yubordim, lekin coin kelmadi"
+                        class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm text-slate-800 outline-none focus:border-mars-blue transition-colors resize-none"></textarea>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2 mb-3">
+                        <span
+                            class="w-6 h-6 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs font-bold">3</span>
+                        <span class="font-bold text-slate-800 text-sm">Rasm qo'shing</span>
+                        <span class="text-slate-400 text-xs ml-1">ixtiyoriy</span>
+                    </div>
+                    <div class="border-2 border-dashed border-slate-300 rounded-xl p-6 flex flex-col items-center justify-center bg-slate-50 relative hover:bg-slate-100 transition-colors cursor-pointer"
+                        onclick="document.getElementById('fileUpload').click()">
+                        <i class="far fa-image text-2xl text-slate-400 mb-2"></i>
+                        <span class="text-sm font-medium text-slate-600">Rasm tashlash</span>
+                        <span class="text-[10px] text-slate-400 mt-1 text-center">Skrinshotni bu yerga tashlang yoki
+                            <span class="text-blue-600 font-bold">Ctrl+V</span> bosing</span>
+                        <input type="file" id="fileUpload" class="hidden" accept="image/*"
+                            onchange="previewImage(this)">
+                    </div>
+                    <div id="imagePreview" class="mt-2 hidden relative">
+                        <img id="previewImg" class="w-full h-32 object-cover rounded-xl border border-slate-200">
+                        <button onclick="removeImage(event)"
+                            class="absolute top-2 right-2 bg-red-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs"><i
+                                class="fas fa-times"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="p-4 border-t border-slate-100 flex justify-end gap-3 bg-slate-50 rounded-b-2xl">
+                <button onclick="closeFeedback()"
+                    class="px-6 py-2.5 bg-white border border-slate-200 text-slate-600 font-bold rounded-xl hover:bg-slate-100 transition-colors">Bekor
+                    qilish</button>
+                <button onclick="submitFeedback()"
+                    class="px-6 py-2.5 bg-[#93C47D] hover:bg-[#7AB35D] text-white font-bold rounded-xl transition-colors">Yuborish</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slot, Wheel, Memory modallari -->
+    <div id="slotOverlay"
+        class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 opacity-0 pointer-events-none transition-opacity duration-300 flex items-center justify-center p-4">
+        <div
+            class="bg-gradient-to-br from-slate-900 to-slate-800 border-4 border-yellow-500 w-full max-w-sm rounded-3xl p-6 text-center relative">
+            <button onclick="closeSlot()" class="absolute top-4 right-4 text-white"><i
+                    class="fas fa-times"></i></button>
+            <h2 class="text-2xl font-black text-white mb-4">🎰 Slot</h2>
+            <div class="bg-black/50 rounded-2xl p-4 mb-4 flex justify-center gap-2 border-4 border-yellow-600/50">
+                <div class="w-20 h-24 bg-white rounded-lg overflow-hidden relative">
+                    <div id="slot1" class="slot-strip slot-item">🍒</div>
+                </div>
+                <div class="w-20 h-24 bg-white rounded-lg overflow-hidden relative">
+                    <div id="slot2" class="slot-strip slot-item">🍋</div>
+                </div>
+                <div class="w-20 h-24 bg-white rounded-lg overflow-hidden relative">
+                    <div id="slot3" class="slot-strip slot-item">🍊</div>
+                </div>
+            </div>
+            <button onclick="spinSlot()" id="slotBtn"
+                class="w-full bg-yellow-500 text-slate-900 font-black py-3 rounded-xl">Aylantirish (50 Coin)</button>
+        </div>
+    </div>
+
+    <div id="wheelOverlay"
+        class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 opacity-0 pointer-events-none transition-opacity duration-300 flex items-center justify-center p-4">
+        <div
+            class="bg-gradient-to-br from-slate-900 to-slate-800 border border-purple-500/30 w-full max-w-sm rounded-3xl p-6 relative">
+            <button onclick="closeWheel()" class="absolute top-4 right-4 text-white"><i
+                    class="fas fa-times"></i></button>
+            <div class="text-center mb-6">
+                <h2 class="text-2xl font-black text-white">🎰 Omad Charxi</h2>
+            </div>
+            <div class="relative flex items-center justify-center mb-6">
+                <div
+                    class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[15px] border-l-transparent border-r-[15px] border-r-transparent border-t-[25px] border-t-mars-red z-20">
+                </div>
+                <div id="spinWheel" class="w-[260px] h-[260px] rounded-full relative"
+                    style="background: conic-gradient(#E31C25 0deg 45deg, #F97316 45deg 90deg, #FBBF24 90deg 135deg, #10B981 135deg 180deg, #3B82F6 180deg 225deg, #8B5CF6 225deg 270deg, #EC4899 270deg 315deg, #F59E0B 315deg 360deg); transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);">
+                    <div
+                        class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70px] h-[70px] rounded-full bg-amber-400 flex items-center justify-center text-[28px] z-10 border-4 border-white">
+                        🎁</div>
+                </div>
+            </div>
+            <button onclick="spinWheel()" id="spinBtn"
+                class="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white font-black py-3 rounded-2xl">Aylantirish</button>
+        </div>
+    </div>
+
+    <div id="memoryOverlay"
+        class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 opacity-0 pointer-events-none transition-opacity duration-300 flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-sm rounded-3xl p-6 relative">
+            <button onclick="closeMemory()" class="absolute top-4 right-4 text-slate-500"><i
+                    class="fas fa-times"></i></button>
+            <div class="text-center mb-4">
+                <h2 class="text-xl font-black">🧩 Xotira</h2>
+            </div>
+            <div id="memoryGrid" class="grid grid-cols-4 gap-2 mb-4"></div>
+            <div class="flex justify-between text-xs"><span>Urinishlar: <strong
+                        id="memoryMoves">0</strong></span><button onclick="startMemoryGame()"
+                    class="text-indigo-600 font-bold">Qaytadan</button></div>
+        </div>
+    </div>
+
+    <script>
+        // 🖼️ SPACE CAP OLIB TASHLANDI (12 ta mahsulot qoldi)
+        const products = [
+            { id: 1, name: "Mars rug", price: 100, stock: 24, image: "img1.png" },
+            { id: 2, name: "Keyboard sticker", price: 49, stock: 11, image: "img2.png" },
+            { id: 3, name: "Smart watch", price: 899, stock: 4, image: "img3.png" },
+            { id: 4, name: "Wireless keyboard", price: 350, stock: 0, image: "img4.png" },
+            { id: 5, name: "Mouse", price: 359, stock: 24, image: "img5.png" },
+            { id: 6, name: "AirPods", price: 499, stock: 11, image: "img6.png" },
+            { id: 7, name: "Powerbank", price: 899, stock: 5, image: "img7.png" },
+            { id: 8, name: "USB flash drive", price: 299, stock: 21, image: "img8.png" },
+            { id: 9, name: "Smartphone", price: 3699, stock: 2, image: "imgs8.png" },
+            { id: 10, name: "Playstation 5", price: 7449, stock: 0, image: "img9.png" },
+            { id: 11, name: "Yandex Station", price: 1999, stock: 4, image: "imgs9.png" },
+            { id: 12, name: "Planshet Samsung", price: 4999, stock: 24, image: "imgs10.png" }
+        ];
+
+        let balance = 1250;
+        let lastSpin = null;
+        let slotSpinning = false;
+        let memoryMoves = 0;
+        let memoryFlipped = [];
+        let memoryMatched = 0;
+        let memoryLock = false;
+        let memoryCards = [];
+
+        function renderProducts(list) {
+            document.getElementById('productsGrid').innerHTML = list.map(p => `
+                <div class="bg-white rounded-2xl border border-slate-100 flex flex-col items-center pt-6 pb-4 px-4 shadow-sm hover:-translate-y-1.5 transition-transform">
+                    <div class="w-24 h-24 sm:w-28 sm:h-28 mb-4 flex items-center justify-center">
+                        <img src="${p.image}" class="w-full h-full object-contain" loading="lazy" onerror="this.src='https://via.placeholder.com/150?text=No+Rasm'">
+                    </div>
+                    <h3 class="font-bold text-xs sm:text-sm text-slate-800 text-center leading-tight mb-2">${p.name}</h3>
+                    <div class="flex items-center justify-center gap-1.5 mb-1">
+                        <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
+                        <span class="font-extrabold text-slate-800 text-xs sm:text-sm">${p.price} Coins</span>
+                    </div>
+                    <p class="text-[10px] sm:text-xs text-slate-400 font-medium">${p.stock} dona mavjud</p>
+                </div>
+            `).join('');
+        }
+        renderProducts(products);
+
+        document.getElementById('searchInput').addEventListener('input', e => {
+            const q = e.target.value.toLowerCase();
+            renderProducts(products.filter(p => p.name.toLowerCase().includes(q)));
+        });
+
+        function toast(msg, type = 'success') {
+            const el = document.getElementById('toast');
+            const bg = type === 'error' ? 'bg-red-50 border-red-200 text-red-700' : 'bg-emerald-50 border-emerald-200 text-emerald-700';
+            el.className = `fixed top-5 left-1/2 -translate-x-1/2 z-[100] max-w-sm w-[92%] ${bg} border rounded-xl px-4 py-3 flex items-center justify-center shadow-lg animate-pop-in`;
+            el.innerHTML = `<span class="text-xs font-bold">${msg}</span>`;
+            el.classList.remove('hidden');
+            setTimeout(() => el.classList.add('hidden'), 3000);
+        }
+
+        // ===== FEEDBACK =====
+        function openFeedback() { document.getElementById('feedbackOverlay').classList.remove('opacity-0', 'pointer-events-none'); document.getElementById('feedbackModal').classList.remove('scale-95'); document.getElementById('feedbackModal').classList.add('scale-100'); }
+        function closeFeedback() { document.getElementById('feedbackOverlay').classList.add('opacity-0', 'pointer-events-none'); document.getElementById('feedbackModal').classList.add('scale-95'); document.getElementById('feedbackText').value = ''; removeImage(); }
+        function selectIssue(btn) {
+            document.querySelectorAll('.issue-type-btn').forEach(b => { b.classList.remove('active', 'border-mars-red', 'bg-green-50', 'text-mars-red'); b.classList.add('border-slate-200', 'text-slate-600'); });
+            btn.classList.add('active', 'border-mars-red', 'bg-green-50', 'text-mars-red');
+        }
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function (e) { document.getElementById('previewImg').src = e.target.result; document.getElementById('imagePreview').classList.remove('hidden'); }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+        function removeImage(e) {
+            if (e) e.stopPropagation();
+            document.getElementById('fileUpload').value = ''; document.getElementById('previewImg').src = ''; document.getElementById('imagePreview').classList.add('hidden');
+        }
+        document.addEventListener('paste', function (e) {
+            if (document.getElementById('feedbackOverlay').classList.contains('pointer-events-none')) return;
+            const items = e.clipboardData.items;
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].type.indexOf('image') !== -1) {
+                    const blob = items[i].getAsFile();
+                    const reader = new FileReader();
+                    reader.onload = function (event) { document.getElementById('previewImg').src = event.target.result; document.getElementById('imagePreview').classList.remove('hidden'); };
+                    reader.readAsDataURL(blob);
+                }
+            }
+        });
+        function submitFeedback() { toast("✅ Fikringiz yuborildi!"); closeFeedback(); }
+
+        // ===== SLOT =====
+        function openSlot() { document.getElementById('slotOverlay').classList.remove('opacity-0', 'pointer-events-none'); }
+        function closeSlot() { document.getElementById('slotOverlay').classList.add('opacity-0', 'pointer-events-none'); }
+        function spinSlot() {
+            if (slotSpinning) return;
+            if (balance < 50) return toast("50 Coin kerak!", "error");
+            balance -= 50; slotSpinning = true;
+            const btn = document.getElementById('slotBtn');
+            btn.disabled = true; btn.textContent = 'Aylanmoqda...';
+            for (let i = 1; i <= 3; i++) document.getElementById('slot' + i).classList.add('animate-slot-roll');
+            setTimeout(() => {
+                const items = ['🍒', '🍋', '🍊', '🔔', '⭐', '💎', '7️⃣'];
+                const r1 = items[Math.floor(Math.random() * 7)], r2 = items[Math.floor(Math.random() * 7)], r3 = items[Math.floor(Math.random() * 7)];
+                for (let i = 1; i <= 3; i++) { document.getElementById('slot' + i).classList.remove('animate-slot-roll'); }
+                document.getElementById('slot1').textContent = r1;
+                document.getElementById('slot2').textContent = r2;
+                document.getElementById('slot3').textContent = r3;
+                if (r1 === r2 && r2 === r3) { balance += 1000; toast("🎉 JACKPOT! 1000 Coin!"); }
+                else if (r1 === r2 || r2 === r3 || r1 === r3) { balance += 100; toast("✨ 2 ta mos! +100 Coin"); }
+                else { toast("😔 Omad kelmadi", "error"); }
+                slotSpinning = false; btn.disabled = false; btn.textContent = 'Aylantirish (50 Coin)';
+            }, 1500);
+        }
+
+        // ===== WHEEL =====
+        function openWheel() { document.getElementById('wheelOverlay').classList.remove('opacity-0', 'pointer-events-none'); }
+        function closeWheel() { document.getElementById('wheelOverlay').classList.add('opacity-0', 'pointer-events-none'); }
+        function spinWheel() {
+            const w = document.getElementById('spinWheel');
+            const deg = 360 * 5 + Math.random() * 360;
+            w.style.transform = `rotate(${deg}deg)`;
+            setTimeout(() => {
+                const reward = [10, 20, 50, 100, 200, 500][Math.floor(Math.random() * 6)];
+                balance += reward; toast(`🎉 ${reward} Coin yutdingiz!`);
+                closeWheel();
+            }, 4000);
+        }
+
+        // ===== MEMORY =====
+        const memoryEmojis = ['🚀', '🪐', '👨‍🚀', '👽', '🛸', '🌟', '☄️', '🔭'];
+        function openMemory() { document.getElementById('memoryOverlay').classList.remove('opacity-0', 'pointer-events-none'); startMemoryGame(); }
+        function closeMemory() { document.getElementById('memoryOverlay').classList.add('opacity-0', 'pointer-events-none'); }
+        function startMemoryGame() {
+            memoryMoves = 0; memoryMatched = 0; memoryFlipped = []; memoryLock = false;
+            document.getElementById('memoryMoves').textContent = '0';
+            memoryCards = [...memoryEmojis, ...memoryEmojis].sort(() => Math.random() - 0.5);
+            document.getElementById('memoryGrid').innerHTML = memoryCards.map((emoji, i) => `
+                <div class="memory-card aspect-square cursor-pointer" data-index="${i}" onclick="flipMemory(this)">
+                    <div class="w-full h-full relative flex items-center justify-center bg-slate-800 text-white rounded-xl text-2xl font-bold transition-transform duration-300">?</div>
+                </div>
+            `).join('');
+        }
+        function flipMemory(card) {
+            if (memoryLock || card.dataset.flipped === "true") return;
+            card.dataset.flipped = "true";
+            card.innerHTML = `<div class="w-full h-full flex items-center justify-center bg-white border border-slate-200 rounded-xl text-2xl">${memoryCards[card.dataset.index]}</div>`;
+            memoryFlipped.push(card);
+            if (memoryFlipped.length === 2) {
+                memoryMoves++; document.getElementById('memoryMoves').textContent = memoryMoves;
+                memoryLock = true;
+                const [a, b] = memoryFlipped;
+                if (memoryCards[a.dataset.index] === memoryCards[b.dataset.index]) {
+                    memoryMatched++; memoryFlipped = []; memoryLock = false;
+                    if (memoryMatched === 8) { balance += 50; toast("🏆 Siz yutdingiz! +50 Coin"); setTimeout(closeMemory, 1500); }
+                } else {
+                    setTimeout(() => {
+                        a.dataset.flipped = "false"; a.innerHTML = `<div class="w-full h-full flex items-center justify-center bg-slate-800 text-white rounded-xl text-2xl font-bold">?</div>`;
+                        b.dataset.flipped = "false"; b.innerHTML = `<div class="w-full h-full flex items-center justify-center bg-slate-800 text-white rounded-xl text-2xl font-bold">?</div>`;
+                        memoryFlipped = []; memoryLock = false;
+                    }, 800);
+                }
+            }
+        }
+
+        window.openFeedback = openFeedback; window.closeFeedback = closeFeedback; window.selectIssue = selectIssue; window.submitFeedback = submitFeedback; window.previewImage = previewImage; window.removeImage = removeImage;
+        window.openSlot = openSlot; window.closeSlot = closeSlot; window.spinSlot = spinSlot;
+        window.openWheel = openWheel; window.closeWheel = closeWheel; window.spinWheel = spinWheel;
+        window.openMemory = openMemory; window.closeMemory = closeMemory; window.startMemoryGame = startMemoryGame; window.flipMemory = flipMemory;
+    </script>
+</body>
+
+</html>
